@@ -5,8 +5,8 @@ import { query, validationResult} from "express-validator";
 const router = express.Router();
 
 router.get('/api/poke', [
-    query('page').optional().isNumeric().withMessage('should be a number'),
-    query('limit').optional().isNumeric().withMessage('should be a number')
+    query('page').optional().isInt({min: 0}).withMessage('should be a number greater than 0'),
+    query('limit').optional().isInt({min: 0}).withMessage('should be a number greater than 0')
 ], async (req: Request, res:Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -20,7 +20,7 @@ router.get('/api/poke', [
         const offset = (page && limit ) ? page * limit : 0;
         pokemons = await axios.get( `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}` );
         result.pokemons = pokemons.data.results;
-        result.total = pokemons.data.results.length;
+        result.total = pokemons.data.count;
     } else {
         pokemons = await axios.get( 'https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0' )
         result.pokemons = pokemons.data.results;
